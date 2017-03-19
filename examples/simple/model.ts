@@ -4,7 +4,7 @@ import {Model, Field, getRegisteredProperties} from '../../src';
 export class Person {
 
   @Field
-  id: string;
+  idd: string;
 
   @Field
   spouse: Person;
@@ -20,5 +20,3 @@ export class Person {
 
   }
 }
-
-

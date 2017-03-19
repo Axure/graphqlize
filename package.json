@@ -30,11 +30,14 @@
     "typescript": "^2.2.1"
   },
   "dependencies": {
+    "mysql": "^2.13.0",
     "reflect-metadata": "^0.1.10",
     "sequelize": "^3.30.2"
   },
   "jest": {
-    "testPathIgnorePatterns": ["<rootDir>/node_modules"],
+    "testPathIgnorePatterns": [
+      "<rootDir>/node_modules"
+    ],
     "transform": {
       ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },

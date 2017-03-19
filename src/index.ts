@@ -1,5 +1,11 @@
 import * as util from 'util';
 import 'reflect-metadata';
+import GlobalSequelize = require("sequelize");
+import Sequelize = GlobalSequelize.Sequelize;
+import DataTypes = GlobalSequelize.DataTypes;
+import DataTypeAbstract = GlobalSequelize.DataTypeAbstract;
+import sequelize = require("sequelize");
+
 
 // export class Model {
 //
@@ -26,7 +32,7 @@ export const Field: PropertyDecorator = <T>(target: ClassConstructor<T>, propert
   console.log('===Property Decorator===');
   const properties = ClassProperties.get(target);
 
-  Reflect.defineMetadata(propertyKey, Reflect.getMetadata("design:type", target, propertyKey), target);
+  Reflect.defineMetadata(propertyKey, Reflect.getMetadata("design:type", target, propertyKey), target, propertyKey);
   console.log('registering', target, 'with key', propertyKey);
 
   if (properties) {
@@ -96,7 +102,7 @@ const ModelRepository = new Map<any, any>();
 export const Model = <R, T>(target: ClassConstructor<T> & R): GraphqlizeModelConstructor<T> & R => {
   console.log('===Model Decorator===');
   console.log('Decorating', target, 'with Model');
-  Reflect.defineMetadata('haha', 'hehe', target);
+  // Reflect.defineMetadata('haha', 'hehe', target);
   ModelRepository.set(target, 1);
   const result = target as any as (GraphqlizeModelConstructor<T> & R);
   result.prototype.persist = () => {
@@ -111,19 +117,39 @@ export class Repository {
 
   modelRepository: Map<any, any>;
   classProperties: Map<any, any>;
+  sequelize: Sequelize;
 
   /**
    *
    */
-  constructor() {
+  constructor(sequelizeInstance: Sequelize) {
+    this.sequelize = sequelizeInstance;
     this.modelRepository = ModelRepository;
     this.classProperties = ClassProperties;
 
-    for (const [key, value] of this.modelRepository.entries()) {
-      console.log('kv in repo:', key, value);
-      console.log(this.getDecoratedFields(key));
-      console.log(this.getPrototypeDecoratedFields(key));
+    for (const [clazz, nothing] of this.modelRepository.entries()) {
+      console.log('kv in repo:', clazz, nothing);
+      console.log(this.getDecoratedFields(clazz));
+      console.log(this.getPrototypeDecoratedFields(clazz));
+      const Options: {
+        [key: string]: DataTypeAbstract
+      } = {
+
+      };
+      this.getPrototypeDecoratedFields(clazz).forEach((propertyKey) => {
+        const type = Reflect.getMetadata("design:type", clazz.prototype, propertyKey);
+        console.log('type of key', propertyKey, 'is', type);
+        Options[propertyKey] = GlobalSequelize.STRING;
+      });
+
+      /* Create the models */
+      const name = clazz.prototype.constructor.name;
+      console.log('name is', name);
+      console.log('options are', Options);
+      const model = this.sequelize.define(name, Options);
+      this.sequelize.sync();
     }
+
   }
 
   /**
@@ -141,7 +167,7 @@ export class Repository {
    * @param clazz
    * @returns {any}
    */
-  private getPrototypeDecoratedFields<T>(clazz: ClassConstructor<T>) {
+  private getPrototypeDecoratedFields<T>(clazz: ClassConstructor<T>): Array<string> {
     const properties = this.classProperties.get(clazz.prototype);
     return properties;
   }
