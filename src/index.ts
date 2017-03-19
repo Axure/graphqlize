@@ -1,7 +1,5 @@
 import * as util from 'util';
 import 'reflect-metadata';
-import {isNullOrUndefined} from "util";
-import 'es6-shim';
 
 // export class Model {
 //
@@ -25,6 +23,7 @@ const ClassProperties = new Map<ClassConstructor<any>, Array<string | symbol>>()
  * @constructor
  */
 export const Field: PropertyDecorator = <T>(target: ClassConstructor<T>, propertyKey: string | symbol) => {
+    console.log('===Property Decorator===');
     const properties = ClassProperties.get(target);
 
     Reflect.defineMetadata(propertyKey, Reflect.getMetadata("design:type", target, propertyKey), target);
@@ -44,9 +43,15 @@ export const Field: PropertyDecorator = <T>(target: ClassConstructor<T>, propert
     console.info('type of `type` is', typeof type);
 
     const keys = Reflect.getMetadataKeys(target);
-    console.log('`keys` are', keys)
+    console.log('`keys` are', keys);
+    console.log('===Ends Property Decorator===\n');
 };
 
+/**
+ *
+ * @param target
+ * @returns {any}
+ */
 export function getRegisteredProperties(target: any): Array<string | symbol> | null {
     console.log('global storage is', ClassProperties);
     console.log('target is', target);
@@ -66,7 +71,7 @@ export interface GraphqlizeModelConstructor<T> {
 }
 
 /**
- *
+ *  An interface of the class constructor
  */
 export interface ClassConstructor<T> extends Function {
     /**
@@ -82,17 +87,62 @@ const ModelRepository = new Map<any, any>();
 
 /**
  *
+ * @tparm R The class
+ * @tparm T The class prototype
  * @param target
- * @returns {GraphqlizeModelConstructor<T>}
+ * @returns {GraphqlizeModelConstructor<T>&R}
  * @constructor
  */
-export const Model = <T>(target: ClassConstructor<T>): GraphqlizeModelConstructor<T> => {
+export const Model = <R, T>(target: ClassConstructor<T> & R): GraphqlizeModelConstructor<T> & R => {
+    console.log('===Model Decorator===');
+    console.log('Decorating', target, 'with Model');
     Reflect.defineMetadata('haha', 'hehe', target);
-    ModelRepository.set(target, target);
-    const result = target as any as (GraphqlizeModelConstructor<T>);
+    ModelRepository.set(target, 1);
+    const result = target as any as (GraphqlizeModelConstructor<T> & R);
     result.prototype.persist = () => {
         // do something.
         console.info('I\'m doing it');
     };
+    console.log('===End Model Decorator===\n');
     return result;
 };
+
+export class Repository {
+
+    modelRepository: Map<any, any>;
+    classProperties: Map<any, any>;
+
+    /**
+     *
+     */
+    constructor() {
+        this.modelRepository = ModelRepository;
+        this.classProperties = ClassProperties;
+
+        for (const [key, value] of this.modelRepository.entries()) {
+            console.log('kv in repo:', key, value);
+            console.log(this.getDecoratedFields(key));
+            console.log(this.getPrototypeDecoratedFields(key));
+        }
+    }
+
+    /**
+     * Get decorated static fields (Property of the constructor) within a class.
+     * @param clazz
+     * @returns {any}
+     */
+    private getDecoratedFields<T>(clazz: ClassConstructor<T>) {
+        const properties = this.classProperties.get(clazz);
+        return properties;
+    }
+
+    /**
+     * Get decorated fields (Property of the prototype of the constructor) within a class.
+     * @param clazz
+     * @returns {any}
+     */
+    private getPrototypeDecoratedFields<T>(clazz: ClassConstructor<T>) {
+        const properties = this.classProperties.get(clazz.prototype);
+        return properties;
+    }
+}

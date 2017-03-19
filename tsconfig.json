@@ -1,12 +1,12 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es5",
+        "target": "es6",
         "moduleResolution": "node",
         "noImplicitAny": true,
         "sourceMap": false,
         "inlineSourceMap": true,
-        "outDir": "dist",
+        "outDir": "tsdist",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "strictNullChecks": true,
