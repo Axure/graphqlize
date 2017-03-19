@@ -1,0 +1,35 @@
+{
+  "name": "graphqlize",
+  "version": "0.0.1",
+  "description": "An all-in-one model layer based on sequelize and graphql.",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Axure/graphqlize.git"
+  },
+  "keywords": [
+    "model"
+  ],
+  "author": "Colliot",
+  "license": "LGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Axure/graphqlize/issues"
+  },
+  "homepage": "https://github.com/Axure/graphqlize#readme",
+  "devDependencies": {
+    "@types/jest": "^19.2.2",
+    "@types/node": "^7.0.8",
+    "@types/reflect-metadata": "^0.0.5",
+    "@types/sequelize": "^4.0.46",
+    "jest": "^19.0.2",
+    "ts-node": "^2.1.0",
+    "typescript": "^2.2.1"
+  },
+  "dependencies": {
+    "reflect-metadata": "^0.1.10",
+    "sequelize": "^3.30.2"
+  }
+}
